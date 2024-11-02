@@ -17,6 +17,8 @@ typedef signed long long s64;
 typedef float f32;
 typedef double f64;
 
+typedef void (*fnptr)(void);
+
 #if defined(__ppc64__) || defined(__powerpc64__) || defined(__aarch64__) || defined(_M_X64) || defined(__x86_64__) || defined(__x86_64) || defined(__s390x__)
 #define PLATFORM_X64
 #else
@@ -41,10 +43,9 @@ typedef u32 psize;
 #define ArrayCount(arr) (sizeof(arr) / sizeof(arr[0]))
 #define Swap(x, y, type) {  type temp = x; x = y; y = temp; }
 
-#ifdef _cplusplus
-#define Min(a,b) (((a)<(b))?(a):(b))
-#define Max(a,b) (((a)>(b))?(a):(b))
-#endif
+#define BMin(a,b) (((a)<(b))?(a):(b))
+#define BMax(a,b) (((a)>(b))?(a):(b))
 #define Lerp(v0, v1,  t) ((v0) + (t) * ((v1) - (v0)))
+
 
 #endif //DEFINES_H

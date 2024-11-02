@@ -11,37 +11,25 @@ typedef struct Arena {
 
 #define ArenaPushStruct(arena, type, num) ArenaPush(arena, sizeof(type) * num)
 
-func void ArenaInit(Arena *arena, u64 size) 
-{
-    arena->mem = (u8*)MemoryAlloc(size);
-    arena->size = 0;
-    arena->capacity = size;
-}
+void ArenaInit(Arena *arena, psize size);
+u8 *ArenaPush(Arena *arena, psize size);
+void ArenaPop(Arena *arena, psize size);
+void ArenaDestroy(Arena *arena);
+void ArenaClear(Arena *arena);
 
-func void ArenaClear(Arena *arena) 
-{
-    arena->size = 0;
-}
-
-func void ArenaDestroy(Arena *arena) 
-{
-    MemoryFree(arena->mem);
-    MemoryZero(arena, sizeof(Arena));
-}
-
-func void *ArenaPush(Arena *arena, u64 size)
-{
-    void *result = arena->mem + arena->size;
-    arena->size += size;
-    Assert(arena->size <= arena->capacity);
+typedef struct MemoryPool {
+    u8 *mem;
+    u8 *pos;
+    u8 *last;
+    psize chunk_size;
+    psize capacity;
     
-    return result;
-}
+    DListNode free_list;
+} MemoryPool;
 
-func void ArenaPop(Arena *arena, u64 size)
-{
-    Assert(arena->size >= size);
-    MemoryZero(arena->mem + arena->size, size);
-    arena->size -= size;
-}
+void MemoryPoolInit(MemoryPool *mem_pool, psize size, psize count);
+void *MemoryPoolGet(MemoryPool *mem_pool);
+void MemoryPoolRelease(MemoryPool *mem_pool, void *mem);
+void MemoryPoolDestroy(MemoryPool *mem_pool);
+
 #endif //MEMORY_H

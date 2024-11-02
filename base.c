@@ -4,4 +4,7 @@
 #include "os_win32.c"
 #endif
 
+#include "hotload.c"
 #include "str.c"
+#include "memory.c"
+#include "allocator.c"

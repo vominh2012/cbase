@@ -4,7 +4,7 @@
 #define STB_SPRINTF_IMPLEMENTATION
 #include "stb_sprintf.h"
 
-static void MemCopy(void *dest, void *src, u64 size) {
+static void MemCopy(void *dest, void *src, psize size) {
     u64 copy_bytes = size; 
     u8 *u8_src = (u8*)src;
     u8 *u8_dest = (u8*)dest;
@@ -13,7 +13,7 @@ static void MemCopy(void *dest, void *src, u64 size) {
     }
 }
 
-String StringAlloc(Arena *arena, u64 size) 
+String StringAlloc(Arena *arena, psize size) 
 {
     String result = { ArenaPush(arena, size), size };
     return result;

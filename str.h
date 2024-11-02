@@ -6,27 +6,26 @@
 // C constant string
 // noted: keep this same structure with String and you are fine
 typedef struct CString {
-    union {
-        u8 *str;
-        void *data;
-    };
-    u64 size;
+    u8 *str;
+    psize size;
 } CString;
 
 typedef struct String {
-    union {
-        u8 *str;
-        void* data;
-    };
-    u64 size;
+    u8 *str;
+    psize size;
 } String;
 
-#define StringLit(s) (CString) { .str = (u8*)(s), .size = sizeof(s) - 1 }
-#define StringMake(s) (CString) { .str = (u8*)(s), .size = strlen(s) }
+#ifdef __cplusplus
+#define StringLit(s) CString { (u8*)(s), sizeof(s) - 1 }
+#define StringMake(s) CString { (u8*)(s), strlen(s) }
+#else
+#define StringLit(s) (CString) { (u8*)(s), sizeof(s) - 1 }
+#define StringMake(s) (CString) { (u8*)(s), strlen(s) }
+#endif
 #define StringExpand(s) (s).str, (u64)(s).size
 
-String StringAlloc(struct Arena *arena, u64 size);
-String StringCopy(struct Arena *arena, String src);
-String StringCopyC(struct Arena *arena, CString src);
+//String StringAlloc(struct Arena *arena, psize size);
+//String StringCopy(struct Arena *arena, String src);
+//String StringCopyC(struct Arena *arena, CString src);
 
 #endif //STR_H
