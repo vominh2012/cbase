@@ -24,7 +24,7 @@ b8 split_if_posible(struct MemoryBlockFree *n, psize size)
 {
     b8 splited = FALSE;
     
-    u64 remaining_bytes = n->block.size - size;
+    psize remaining_bytes = n->block.size - size;
     if (remaining_bytes >= sizeof(MemoryBlockFree)) {
         
         n->block.size = size;

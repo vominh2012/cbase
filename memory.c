@@ -1,36 +1,3 @@
-void ArenaInit(Arena *arena, psize size)
-{
-    arena->mem = (u8*)MemoryAlloc(size);
-    arena->size = 0;
-    arena->capacity = size;
-}
-
-void ArenaClear(Arena *arena) 
-{
-    arena->size = 0;
-}
-
-void ArenaDestroy(Arena *arena) 
-{
-    MemoryFree(arena->mem);
-    MemoryZero(arena, sizeof(Arena));
-}
-
-u8 *ArenaPush(Arena *arena, psize size)
-{
-    u8*result = arena->mem + arena->size;
-    arena->size += size;
-    Assert(arena->size <= arena->capacity);
-    
-    return result;
-}
-
-void ArenaPop(Arena *arena, psize size)
-{
-    Assert(arena->size >= size);
-    MemoryZero(arena->mem + arena->size, size);
-    arena->size -= size;
-}
 
 void MemoryPoolInit(MemoryPool *mem_pool, psize size, psize count)
 {

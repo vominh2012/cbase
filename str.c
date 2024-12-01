@@ -28,6 +28,7 @@ String StringCopyC(Arena *arena, CString src)
 
 String StringCopy(Arena *arena, String src)
 {
-    return StringCopyC(arena, (CString){ src.str, src.size  });
+    CString s = { src.str, src.size  };
+    return StringCopyC(arena, s);
 }
 

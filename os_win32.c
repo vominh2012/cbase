@@ -38,8 +38,8 @@ void MemoryFill(void *dest, psize size, u8 val)
 u64 MemoryCompare(void *a, void *b, psize size)
 {
     u64 match_count = 0;
-    u8 * ma = a;
-    u8 * mb = b;
+    u8 * ma = (u8*)a;
+    u8 * mb = (u8*)b;
     while (ma++ == mb++ && match_count < size)
     {
         ++match_count;
@@ -51,16 +51,50 @@ u64 MemoryCompare(void *a, void *b, psize size)
 b8 GetFileInfo(CString file_name,  FileAttribute *stat)
 {
     WIN32_FILE_ATTRIBUTE_DATA file_attribute = {0};
-    BOOL ret = GetFileAttributesEx(file_name.str, GetFileExInfoStandard, &file_attribute);
+    BOOL ret = GetFileAttributesEx((LPCSTR)file_name.str, GetFileExInfoStandard, &file_attribute);
     
     MemoryCopy(&stat->last_write, &file_attribute.ftLastWriteTime, sizeof(stat->last_write));
     MemoryCopy(&stat->last_access, &file_attribute.ftLastAccessTime, sizeof(stat->last_write));
     return (ret != 0);
 }
 
+void *ReadEntireFile(CString file_name, psize *size)
+{
+    u8 *file_contents = 0;
+    
+    HANDLE hFile = CreateFile(file_name.str,               // file to open
+                              GENERIC_READ,          // open for reading
+                              FILE_SHARE_READ,       // share for reading
+                              NULL,                  // default security
+                              OPEN_EXISTING,         // existing file only
+                              FILE_ATTRIBUTE_NORMAL, // normal file
+                              NULL);
+    if (hFile != INVALID_HANDLE_VALUE) 
+    { 
+        u32 file_size = GetFileSize( hFile, NULL);
+        file_contents = MemoryAlloc(file_size);
+        if (file_contents)
+        {
+            BOOL success = 0;
+            u32 total_read_bytes = 0;
+            do {
+                u32 read_bytes = 0;
+                success = ReadFile(hFile, file_contents + read_bytes, file_size - read_bytes, &read_bytes, 0);
+                total_read_bytes += read_bytes;
+            } while (total_read_bytes < file_size && success);
+            
+            *size = total_read_bytes;
+        }
+        
+        CloseHandle(hFile);
+    }
+    
+    return file_contents;
+}
+
 b8 CopyFileB(CString dest, CString source, b8 overwrite)
 {
-    return (0 != CopyFile(source.str, dest.str, overwrite ? FALSE : TRUE)); 
+    return (0 != CopyFile((LPCSTR)source.str, (LPCSTR)dest.str, overwrite ? FALSE : TRUE)); 
 }
 
 u32 PrintConsole(void *buff, u32 size)

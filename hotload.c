@@ -25,10 +25,10 @@ b8 LibHotLoad(LibCodeInfo *lib)
         if (CopyFileB(lib->dll_name_temp, lib->dll_name, TRUE))
         {
             
-            lib->hdll = LoadLibraryA(lib->dll_name_temp.str);
+            lib->hdll = (u8*)LoadLibraryA((LPCSTR)lib->dll_name_temp.str);
             if(lib->hdll)
             {
-                lib->func_ptr = GetProcAddress(lib->hdll, lib->func_name.str);
+                lib->func_ptr = (u8*)GetProcAddress((HMODULE)lib->hdll, (LPCSTR)lib->func_name.str);
                 result = (lib->func_ptr != 0);
                 if (result) 
                 {
@@ -51,6 +51,6 @@ b8 LibHotLoad(LibCodeInfo *lib)
 
 void LibUnload(LibCodeInfo *lib)
 {    
-    FreeLibrary(lib->hdll);
+    FreeLibrary((HMODULE)lib->hdll);
     lib->hdll = 0;
 }

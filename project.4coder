@@ -1,0 +1,42 @@
+version(2);
+project_name = "test";
+patterns = {
+"*.c",
+"*.cpp",
+"*.h",
+"*.m",
+"*.bat",
+"*.sh",
+"*.4coder",
+};
+blacklist_patterns = {
+".*",
+};
+load_paths_base = {
+ { ".path =", .relative = true, .recursive = true, },
+};
+load_paths = {
+ .win = load_paths_base,
+ .linux = load_paths_base,
+ .mac = load_paths_base,
+};
+
+commands = {
+ .build = { .out = "*compilation*", .footer_panel = true, .save_dirty_files = true,
+   .win = "build.bat",
+   .linux = "./build.sh",
+   .mac = "./build.sh", },
+ .run = { .out = "*run*", .footer_panel = false, .save_dirty_files = false,
+   .win = "test.exe",
+   .linux = "test",
+   .mac = "test", },
+ .debug = { .out = "", .footer_panel = false, .save_dirty_files = false,
+   .win = "devenv test.exe",
+   .linux = "gdb test",
+   .mac = "gdb test", },
+};
+fkey_command = {
+.F1 = "build",
+.F2 = "run",
+.F3 = "debug",
+};
