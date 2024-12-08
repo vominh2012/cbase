@@ -4,7 +4,7 @@ void MemoryPoolInit(MemoryPool *mem_pool, psize size, psize count)
     psize chunk_size = BMin(size, sizeof(DListNode));
     psize total_size = chunk_size * count;
     
-    mem_pool->mem = (u8*)MemoryAlloc(total_size);
+    mem_pool->mem = (u8*)OS_MemoryAlloc(total_size);
     mem_pool->pos = mem_pool->mem;
     mem_pool->last = mem_pool->mem + total_size - chunk_size;
     mem_pool->chunk_size = chunk_size;
@@ -41,5 +41,5 @@ void MemoryPoolRelease(MemoryPool *mem_pool, void *mem)
 
 void MemoryPoolDestroy(MemoryPool *mem_pool)
 {
-    MemoryFree(mem_pool->mem);
+    OS_MemoryFree(mem_pool->mem);
 }

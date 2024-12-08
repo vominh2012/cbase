@@ -1,6 +1,6 @@
 #include "str.h"
 
-#define STB_SPRINTF_NOFLOAT
+// #define STB_SPRINTF_NOFLOAT
 #define STB_SPRINTF_IMPLEMENTATION
 #include "stb_sprintf.h"
 
@@ -13,22 +13,68 @@ static void MemCopy(void *dest, void *src, psize size) {
     }
 }
 
-String StringAlloc(Arena *arena, psize size) 
-{
-    String result = { ArenaPush(arena, size), size };
-    return result;
+CString StringTrimSpace(CString s) {
+    while(s.size > 0 && *s.str == ' ')
+    {
+        ++s.str;
+        --s.size;
+    }
+    
+    return s;
 }
 
-String StringCopyC(Arena *arena, CString src)
+CString StringFormat(MArena *arena, const char* format, ...)
 {
-    String result = { ArenaPush(arena, src.size), src.size };
-    MemCopy(result.str, src.str, src.size);
-    return result;
+    va_list args;
+    va_start(args, format);
+    
+    CString ret =  {0};
+    
+    int count = stbsp_vsnprintf(0, 0, format, args) + 1;
+    ret.str = ArenaPush(arena, count);
+    
+    if (ret.str)
+    {
+        // cannot pass the variadic arguments to a variadic function so you v version
+        // noted: stb alway write null terminated at the end
+        int written = stbsp_vsnprintf((char*)ret.str, count, format, args);
+        
+        Assert(written == count - 1);
+        
+        ret.size = written;
+    }
+    else 
+    {
+        Assert(0); // oops
+    }
+    
+    va_end(args);
+    
+    return ret;
 }
 
-String StringCopy(Arena *arena, String src)
+void StringSplit(struct MArena *arena, StringList *list, CString s, char separator)
 {
-    CString s = { src.str, src.size  };
-    return StringCopyC(arena, s);
+    u8* string_end = s.str + s.size;
+    u8* token_start = s.str;
+    u8* token_end = s.str;
+    while(token_end < string_end)
+    {
+        while (token_end < string_end && *token_end != separator)
+        {
+            token_end++;
+        }
+        
+        if (token_end != token_start)
+        {
+            CString token = {token_start, (u32)(token_end - token_start) };
+            StringNode *node = ArenaPushStruct(arena, StringNode);
+            node->s = token;
+            DListInsertBack(list, node);
+            list->count++;
+        }
+        
+        ++token_end;
+        token_start = token_end;
+    }
 }
-

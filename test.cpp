@@ -5,14 +5,14 @@ typedef struct A {
     struct A *prev;
 } A;
 
-#define print(msg) PrintConsole(msg, ArrayCount(msg) - 1)
+#define print(msg) OS_PrintConsole(StringLit(msg))
 
 void test_os()
 {
     char msg[] = "hello world\n";
     const u32 size = ArrayCount(msg) - 1; // null terminated
     
-    u32 result = PrintConsole(msg, size);
+    u32 result = OS_PrintConsole(StringLit(msg));
     Assert(result == size);
 }
 
@@ -36,13 +36,20 @@ void test_memory_pool()
 
 void test_arena() 
 {
-    Arena arena;
-    ArenaInit(&arena, GB(1));
+    MArena arena;
+    ArenaInit(&arena, KB(1));
+    
+    ArenaPush(&arena, MB(1));
+    ArenaPush(&arena, MB(1));
+    ArenaPush(&arena, MB(1));
+    ArenaPop(&arena, MB(1));
+    ArenaPop(&arena, MB(1));
+    ArenaPop(&arena, MB(1));
+    
     u8* mem = ArenaPush(&arena, MB(1));
     Assert(mem != 0);
-    Assert(arena.size == MB(1));
+    Assert(arena.next->size >= MB(1));
     ArenaPop(&arena, MB(1));
-    Assert(arena.size == 0);
     
     ArenaDestroy(&arena);
 }
@@ -68,10 +75,25 @@ void test_general_purpose_memory()
 
 void test_string() 
 {
-    Arena arena;
+    MArena arena;
     ArenaInit(&arena, GB(1));
     
     CString a = StringLit("abcdef\n");
+    
+    CString formated = StringFormat(&arena, "%s %d %d\n", a.str, 11, 12);
+    OS_PrintConsole(formated);
+    
+    CString str_list = StringLit("1, 2, 3, 4, 5\n");
+    
+    StringList list;
+    DListInit((StringNode*)&list);
+    StringSplit(&arena, &list, str_list, ',');
+    
+    for(StringNode *node = list.next; node != (StringNode*)&list; node = node->next)
+    {
+        OS_PrintConsole(node->s);
+        OS_PrintConsole(StringLit("\n"));
+    }
     
     //String b = StringCopyC(&arena, a);
     //String c = StringAlloc(&arena, KB(1));c;

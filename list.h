@@ -37,5 +37,6 @@ typedef struct SListNode {
 #define SListNotEmpty(s) ((s)->next) != (s)
 
 #define SListInsert(n, val) (val)->next=(n)->next,(n)->next=(val)
+#define SListPop(n) (n)->next = (n)->next->next
 
 #endif //LIST_H

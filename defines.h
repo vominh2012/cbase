@@ -31,8 +31,6 @@ typedef u64 psize;
 typedef u32 psize;
 #endif
 
-#define func static
-
 #define KB(n) ((n) * 1024)
 #define MB(n) ((n) * KB(1024))
 #define GB(n) ((n) * MB(1024))
@@ -46,6 +44,10 @@ typedef u32 psize;
 #define BMin(a,b) (((a)<(b))?(a):(b))
 #define BMax(a,b) (((a)>(b))?(a):(b))
 #define Lerp(v0, v1,  t) ((v0) + (t) * ((v1) - (v0)))
+#define SafeExec(func, param) { if (param) func(param); }
+#define IsPowerOfTwo(x) ((x & (x-1)) == 0)
+#define AlignSize(size, align) ((size) + ((align) - ((size) % (align))))
 
+#define StructAlloc(type, size) (type*)calloc(sizeof(type), size);
 
 #endif //DEFINES_H

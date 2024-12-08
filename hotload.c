@@ -1,12 +1,12 @@
 b8 LibNeedReload(LibCodeInfo *lib)
 {
     FileAttribute file_stat = {0};
-    b8 ret = GetFileInfo(lib->dll_name, &file_stat);
+    b8 ret = OS_GetFileInfo(lib->dll_name, &file_stat);
     if (ret)
     {
         if (file_stat.last_write != lib->last_write)
         {
-            b8 lock_file_existed = lib->lock_file.str ? GetFileInfo(lib->lock_file, &file_stat) : 0;
+            b8 lock_file_existed = lib->lock_file.str ? OS_GetFileInfo(lib->lock_file, &file_stat) : 0;
             return !lock_file_existed;
         }
     }
@@ -20,9 +20,9 @@ b8 LibHotLoad(LibCodeInfo *lib)
     FileAttribute file_stat = {0};
     
     
-    if (GetFileInfo(lib->dll_name, &file_stat))
+    if (OS_GetFileInfo(lib->dll_name, &file_stat))
     {
-        if (CopyFileB(lib->dll_name_temp, lib->dll_name, TRUE))
+        if (OS_CopyFile(lib->dll_name_temp, lib->dll_name, TRUE))
         {
             
             lib->hdll = (u8*)LoadLibraryA((LPCSTR)lib->dll_name_temp.str);

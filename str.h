@@ -7,13 +7,21 @@
 // noted: keep this same structure with String and you are fine
 typedef struct CString {
     u8 *str;
-    psize size;
+    u32 size;
 } CString;
 
-typedef struct String {
-    u8 *str;
-    psize size;
-} String;
+typedef struct StringNode {
+    CString s;
+    struct StringNode *next;
+    struct StringNode *prev;
+} StringNode;
+
+typedef struct StringList {
+    CString unused;
+    struct StringNode *next;
+    struct StringNode *prev;
+    u32 count;
+} StringList;
 
 #ifdef __cplusplus
 #define StringLit(s) CString { (u8*)(s), sizeof(s) - 1 }
@@ -24,8 +32,10 @@ typedef struct String {
 #endif
 #define StringExpand(s) (s).str, (u64)(s).size
 
-//String StringAlloc(struct Arena *arena, psize size);
-//String StringCopy(struct Arena *arena, String src);
-//String StringCopyC(struct Arena *arena, CString src);
+CString StringTrimSpace(CString s);
+
+void StringSplit(struct MArena *arena, StringList *list, CString s, char separator);
+
+CString StringFormat(struct MArena *arena, const char *format, ...);
 
 #endif //STR_H

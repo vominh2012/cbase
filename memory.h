@@ -3,20 +3,6 @@
 #ifndef MEMORY_H
 #define MEMORY_H
 
-typedef struct Arena {
-    u8 *mem;
-    u64 size;
-    u64 capacity;
-} Arena;
-
-#define ArenaPushStruct(arena, type, num) ArenaPush(arena, sizeof(type) * num)
-
-void ArenaInit(Arena *arena, psize size);
-u8 *ArenaPush(Arena *arena, psize size);
-void ArenaPop(Arena *arena, psize size);
-void ArenaDestroy(Arena *arena);
-void ArenaClear(Arena *arena);
-
 typedef struct MemoryPool {
     u8 *mem;
     u8 *pos;

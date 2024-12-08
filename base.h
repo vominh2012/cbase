@@ -10,6 +10,7 @@ extern "C" {
 #include "list.h"
 #include "str.h"
 #include "os.h"
+#include "arena.h"
 #include "memory.h"
 #include "allocator.h"
 #include "hotload.h"

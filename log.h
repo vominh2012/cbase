@@ -9,7 +9,8 @@ char buff[1024] = {0};\
 int written = stbsp_snprintf(buff, ArrayCount(buff), "%s:%d: %s: ",__FILE__, __LINE__, (level));\
 written += stbsp_snprintf(buff + written, ArrayCount(buff) - written, format, ##__VA_ARGS__);\
 buff[written] = '\n';\
-PrintConsole(buff, written + 1); \
+CString sbuff = {(u8*)buff, (u32)written + 1};\
+OS_PrintConsole(sbuff); \
 }
 
 #define LogInfo(format, ...) { Log("Info", format, ##__VA_ARGS__); }
