@@ -47,7 +47,7 @@ void OS_MemoryFill(void *dest, psize size, u8 val)
 
 psize OS_MemoryCompare(void *a, void *b, psize size)
 {
-    u64 match_count = 0;
+    psize match_count = 0;
     u8 * ma = (u8*)a;
     u8 * mb = (u8*)b;
     while (ma++ == mb++ && match_count < size)

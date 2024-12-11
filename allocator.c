@@ -105,7 +105,7 @@ u8* GMemAlloc(GMem *memory, psize size) {
     // new block if not found any free block
     if (!block) {
         block = (MemoryBlock*)(memory->mem + memory->mem_used);
-        block->mem = (u8*)block + sizeof(MemoryBlock);
+        block->mem = (u8*)(block + 1);
         block->size = size;
         
         memory->mem_used += size + sizeof(MemoryBlock);

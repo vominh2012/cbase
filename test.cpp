@@ -1,4 +1,6 @@
+#define _CRT_RAND_S
 #include "base.h"
+#include <time.h>
 
 typedef struct A {
     struct A *next;
@@ -36,22 +38,88 @@ void test_memory_pool()
 
 void test_arena() 
 {
-    MArena arena;
-    ArenaInit(&arena, KB(1));
+    MArena *arena = ArenaNew(MB(1));
     
-    ArenaPush(&arena, MB(1));
-    ArenaPush(&arena, MB(1));
-    ArenaPush(&arena, MB(1));
-    ArenaPop(&arena, MB(1));
-    ArenaPop(&arena, MB(1));
-    ArenaPop(&arena, MB(1));
+    ArenaPush(arena, MB(1));
+    ArenaPush(arena, MB(1));
+    ArenaPush(arena, MB(1));
+    ArenaPop(arena, MB(1));
+    ArenaPop(arena, MB(1));
+    ArenaPop(arena, MB(1));
     
-    u8* mem = ArenaPush(&arena, MB(1));
+    // pop back to original arena
+    Assert(arena->next == arena);
+    
+    
+    u8* mem = ArenaPush(arena, MB(1));
     Assert(mem != 0);
-    Assert(arena.next->size >= MB(1));
-    ArenaPop(&arena, MB(1));
+    Assert(arena->next->size >= MB(1));
+    ArenaPop(arena, MB(1));
     
-    ArenaDestroy(&arena);
+    psize prev_arena_size = arena->size;
+    
+    MTempArena temp = BeginTempArena(arena);
+    ArenaPush(arena, KB(1));
+    ArenaPush(arena, MB(1));
+    ArenaPush(arena, MB(2));
+    EndTempArena(&temp);
+    
+    Assert(prev_arena_size == arena->size);
+    
+    ArenaPush(arena, MB(1));
+    ArenaPop(arena, MB(1));
+    
+    ArenaDestroy(arena);
+}
+
+void test_arena_random()
+{
+    srand ((u32)time(NULL));
+    
+    psize arena_size;
+    psize max_push;
+    
+    rand_s((u32*)&arena_size);
+    rand_s((u32*)&max_push);
+    
+    arena_size = arena_size % MB(256);
+    MArena *arena = ArenaNew(arena_size);
+    
+    
+    int max_loop = 50;
+    
+    max_push= max_push % MB(256);
+    for (int i = 0; i < max_loop; ++i)
+    {
+        psize push_size;
+        rand_s((u32*)&push_size);
+        push_size = push_size % max_push;
+        
+        ArenaPush(arena, push_size);
+        ArenaPop(arena, push_size);
+    }
+    
+    u32 arena_list_count = 1;
+    MArena *iter = arena->next;
+    while (iter != arena)
+    {
+        arena_list_count++;
+        iter = iter->next;
+    }
+    Assert(arena_list_count == 1);
+    
+    for (int i = 0; i < max_loop; ++i)
+    {
+        psize push_size;
+        rand_s((u32*)&push_size);
+        push_size = push_size % max_push;
+        MTempArena temp = BeginTempArena(arena);
+        ArenaPush(temp.arena, push_size);
+        ArenaPush(temp.arena, push_size);
+        EndTempArena(&temp);
+    }
+    
+    ArenaDestroy(arena);
 }
 
 void test_general_purpose_memory()
@@ -75,19 +143,18 @@ void test_general_purpose_memory()
 
 void test_string() 
 {
-    MArena arena;
-    ArenaInit(&arena, GB(1));
+    MArena *arena = ArenaNew(GB(1));
     
     CString a = StringLit("abcdef\n");
     
-    CString formated = StringFormat(&arena, "%s %d %d\n", a.str, 11, 12);
+    CString formated = StringFormat(arena, "%s %d %d\n", a.str, 11, 12);
     OS_PrintConsole(formated);
     
     CString str_list = StringLit("1, 2, 3, 4, 5\n");
     
     StringList list;
     DListInit((StringNode*)&list);
-    StringSplit(&arena, &list, str_list, ',');
+    StringSplit(arena, &list, str_list, ',');
     
     for(StringNode *node = list.next; node != (StringNode*)&list; node = node->next)
     {
@@ -98,7 +165,7 @@ void test_string()
     //String b = StringCopyC(&arena, a);
     //String c = StringAlloc(&arena, KB(1));c;
     
-    //ArenaDestroy(&arena);
+    ArenaDestroy(arena);
 }
 
 void test_list()
@@ -120,6 +187,7 @@ void main() {
     test_os();
     test_memory_pool();
     test_arena();
+    test_arena_random();
     test_general_purpose_memory();
     test_string();
     

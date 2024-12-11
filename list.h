@@ -20,7 +20,7 @@ typedef struct DListNode {
 #define DListIsEmpty(s) ((s)->next) == (s)
 #define DListNotEmpty(s) ((s)->next) != (s)
 
-#define DListInsert(n, val) (val)->prev =n, (val)->next=(n)->next, (val)->prev->next=val, (val)->next->prev=val
+#define DListInsert(n, val) (val)->prev=(n), (val)->next=(n)->next, (val)->prev->next=val, (val)->next->prev=(val)
 #define DListInsertBack(s, n) DListInsert((s)->prev, n)
 #define DListInsertFront(s, n) DListInsert(s, n)
 #define DListRemove(n) (n)->prev->next=(n)->next, (n)->next->prev=(n)->prev, (n)->next=(n)->prev=0
@@ -36,7 +36,7 @@ typedef struct SListNode {
 #define SListIsEmpty(s) ((s)->next) == (s)
 #define SListNotEmpty(s) ((s)->next) != (s)
 
-#define SListInsert(n, val) (val)->next=(n)->next,(n)->next=(val)
-#define SListPop(n) (n)->next = (n)->next->next
+#define SListStackPush(n, val) (val)->next=(n)->next,(n)->next=(val)
+#define SListStackPop(n) (n)->next = (n)->next->next
 
 #endif //LIST_H
