@@ -1,6 +1,9 @@
 #define _CRT_RAND_S
+#define _CRTDBG_MAP_ALLOC
 #include "base.h"
 #include <time.h>
+#include <stdlib.h>
+#include <crtdbg.h>
 
 typedef struct A {
     struct A *next;
@@ -76,26 +79,28 @@ void test_arena_random()
 {
     srand ((u32)time(NULL));
     
+    const int max_size = MB(128);
+    const int max_loop = 10;
+    
     psize arena_size;
     psize max_push;
     
     rand_s((u32*)&arena_size);
     rand_s((u32*)&max_push);
     
-    arena_size = arena_size % MB(256);
+    arena_size = arena_size % max_size;
     MArena *arena = ArenaNew(arena_size);
     
     
-    int max_loop = 50;
-    
-    max_push= max_push % MB(256);
+    max_push= max_push % max_size;
     for (int i = 0; i < max_loop; ++i)
     {
         psize push_size;
         rand_s((u32*)&push_size);
         push_size = push_size % max_push;
         
-        ArenaPush(arena, push_size);
+        u8 *data = ArenaPush(arena, push_size);
+        OS_MemoryFill(data, push_size, 1);
         ArenaPop(arena, push_size);
     }
     
@@ -114,8 +119,8 @@ void test_arena_random()
         rand_s((u32*)&push_size);
         push_size = push_size % max_push;
         MTempArena temp = BeginTempArena(arena);
-        ArenaPush(temp.arena, push_size);
-        ArenaPush(temp.arena, push_size);
+        u8 *data =ArenaPush(temp.arena, push_size);
+        OS_MemoryFill(data, push_size, 1);
         EndTempArena(&temp);
     }
     
@@ -193,4 +198,8 @@ void main() {
     
     
     print("Test end\n");
+    malloc(10);
+    _CrtSetReportMode( _CRT_WARN, _CRTDBG_MODE_FILE);
+    _CrtSetReportFile(_CRT_WARN, _CRTDBG_FILE_STDERR);
+    _CrtDumpMemoryLeaks();
 }

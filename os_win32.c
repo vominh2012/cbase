@@ -68,6 +68,35 @@ b8 OS_GetFileInfo(CString file_name,  FileAttribute *stat)
     return (ret != 0);
 }
 
+psize OS_WriteFile(CString file_name, char *buffer, psize size)
+{
+    u8 *file_contents = 0;
+    u32 written = 0;
+    
+    HANDLE hFile = CreateFile((LPCSTR)file_name.str,               // file to open
+                              GENERIC_WRITE,          // open for reading
+                              0,
+                              NULL,                  // default security
+                              CREATE_ALWAYS,         // existing file only
+                              FILE_ATTRIBUTE_NORMAL, // normal file
+                              NULL);
+    if (hFile != INVALID_HANDLE_VALUE) 
+    {
+        BOOL bErrorFlag = WriteFile( 
+                                    hFile,           // open file handle
+                                    buffer,      // start of data to write
+                                    (DWORD)size,  // number of bytes to write
+                                    (LPDWORD)&written, // number of bytes that were written
+                                    NULL);            // no overlapped structure
+        
+        CloseHandle(hFile);
+        
+        Assert(bErrorFlag);
+    }
+    
+    return written;
+}
+
 void *OS_ReadEntireFile(CString file_name, psize *size)
 {
     u8 *file_contents = 0;
@@ -82,7 +111,7 @@ void *OS_ReadEntireFile(CString file_name, psize *size)
     if (hFile != INVALID_HANDLE_VALUE) 
     { 
         u32 file_size = GetFileSize( hFile, NULL);
-        file_contents = (u8*)OS_MemoryAlloc(file_size);
+        file_contents = (u8*)OS_MemoryAlloc(file_size + 1);
         if (file_contents)
         {
             BOOL success = 0;
@@ -93,7 +122,9 @@ void *OS_ReadEntireFile(CString file_name, psize *size)
                 total_read_bytes += read_bytes;
             } while (total_read_bytes < file_size && success);
             
+            Assert(total_read_bytes <= file_size);
             *size = total_read_bytes;
+            
         }
         
         CloseHandle(hFile);

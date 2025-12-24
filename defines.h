@@ -35,6 +35,16 @@ typedef u32 psize;
 #define MB(n) ((n) * KB(1024))
 #define GB(n) ((n) * MB(1024))
 
+#define Thousand(x) ((x)*1000)
+#define Million(x)  ((x)*1000000)
+#define Billion(x)  ((x)*1000000000)
+
+#define HasFlag(fi,fl) (((fi)&(fl))!=0)
+#define HasAllFlag(fi,fl) (((fi)&(fl))==(fl))
+#define AddFlag(fi,fl) ((fi)|=(fl))
+#define RemFlag(fi,fl) ((fi)&=(~(fl)))
+#define MovFlag(fi1,fl1,fi2,fl2) ((HasFlag(fi1,fl1))?(AddFlag(fi2,fl2)):(fi2))
+
 #ifndef Assert
 #define Assert(exp) if (!(exp)) (*((int*)0) = 0)
 #endif
@@ -47,6 +57,11 @@ typedef u32 psize;
 #define SafeExec(func, param) { if (param) func(param); }
 #define IsPowerOfTwo(x) ((x & (x-1)) == 0)
 #define AlignSize(size, align) ((size) + ((align) - ((size) % (align))))
+#define Abs(x) ((x) < 0 ? -(x) : (x))
+
+#define MIN_INT (-2147483647 - 1)
+#define MAX_INT 2147483647
+#define MAX_U32 0xffffffff
 
 #define StructAlloc(type, size) (type*)calloc(sizeof(type), size);
 

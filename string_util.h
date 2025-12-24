@@ -32,6 +32,20 @@ inline char *SFind(char *s, char c)
     return 0;
 }
 
+inline int SRFind(char *s, char c)
+{
+    int len = SLen(s);
+    while (len > 0) {
+        int idx = len - 1;
+        if (s[idx] == c)
+            return idx;
+        --len;
+    }
+    
+    return 0;
+}
+
+
 static void SEatEndSpace(char *s)
 {
     int length = SLen(s);

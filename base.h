@@ -14,6 +14,7 @@ extern "C" {
 #include "memory.h"
 #include "allocator.h"
 #include "hotload.h"
+#include "string_util.h"
     
 #ifdef __cplusplus 
 }

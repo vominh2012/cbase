@@ -6,6 +6,7 @@
 typedef struct MArena {
     u8 *mem;
     psize size;
+    psize commit_size;
     psize capacity;
     
     MArena *next;

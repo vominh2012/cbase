@@ -1,14 +1,17 @@
 #define MEM_PAGE_SIZE (4 * 1024)
 #define MEM_ALLOCATION_GRANULARITY (64 * 1024)
-#define MEM_ALIGNMENT 8
+
 
 #if defined(__SANITIZE_ADDRESS__)
 #include "sanitizer/asan_interface.h"
 #define AsanPoison __asan_poison_memory_region
 #define AsanUnpoison __asan_unpoison_memory_region
+// asan only work with memory alignment by 8
+#define MEM_ALIGNMENT 8 
 #else
 #define AsanPoison
 #define AsanUnpoison
+#define MEM_ALIGNMENT sizeof(void*)
 #endif 
 
 MArena *ArenaNew(psize size)
@@ -59,6 +62,7 @@ u8 *ArenaPush(MArena *arena, psize size, bool zero)
     u8 *result = 0;
     MArena *current_arena = arena->next;
     
+    bool need_zero = true;
     psize asize = AlignSize(size, MEM_ALIGNMENT);
     
     if (current_arena->size + asize > current_arena->capacity)
@@ -68,18 +72,31 @@ u8 *ArenaPush(MArena *arena, psize size, bool zero)
         new_arena->size = asize;
         
         SListStackPush(arena, new_arena);
-        // zero = false; // OS new alloc always zero memory
+        need_zero = false; // OS new alloc always zero memory
     }
     else
     {
+        if (current_arena->size >= current_arena->commit_size)
+        {
+            current_arena->commit_size = current_arena->size + asize;
+            need_zero = false; // OS untouch memory always already init with zero
+        }
+        
         result = current_arena->mem + current_arena->size;
         current_arena->size += asize;
+        
         Assert(current_arena->size <= current_arena->capacity);
     }
     
     AsanUnpoison(result, size);
     
-    if (zero)
+    if (!need_zero)
+    {
+        // debug: just make sure memory is actually zeroed
+        Assert(result[0] == 0); 
+    }
+    
+    if (zero && need_zero)
     {
         OS_MemoryZero(result, size);
     }

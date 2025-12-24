@@ -26,6 +26,7 @@ b8 OS_GetFileInfo(CString file_name, FileAttribute *stat);
 b8 OS_CopyFile(CString dest, CString source, b8 overwrite);
 
 void *OS_ReadEntireFile(CString file_name, psize *size);
+psize OS_WriteFile(CString file_name, char *buffer, psize size);
 
 u32 OS_PrintConsole(CString text);
 
