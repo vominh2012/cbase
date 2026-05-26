@@ -39,11 +39,11 @@ typedef u32 psize;
 #define Million(x)  ((x)*1000000)
 #define Billion(x)  ((x)*1000000000)
 
-#define HasFlag(fi,fl) (((fi)&(fl))!=0)
-#define HasAllFlag(fi,fl) (((fi)&(fl))==(fl))
-#define AddFlag(fi,fl) ((fi)|=(fl))
-#define RemFlag(fi,fl) ((fi)&=(~(fl)))
-#define MovFlag(fi1,fl1,fi2,fl2) ((HasFlag(fi1,fl1))?(AddFlag(fi2,fl2)):(fi2))
+#define HasFlag(fi,fl) (((fi) & (fl)) != 0)
+#define HasAllFlag(fi,fl) (((fi) & (fl)) == (fl))
+#define SetFlag(fi,fl) ((fi) |= (fl))
+#define ClearFlag(fi,fl) ((fi) &= ~(fl))
+#define ToggleFlag(fi,fl) ((fi) ^= (fl))
 
 #ifndef Assert
 #define Assert(exp) if (!(exp)) (*((int*)0) = 0)
